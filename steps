@@ -1,5 +1,0 @@
-powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-uv init
-uv venv
-.venv\Scripts\activate
-uv add fastapi uvicorn sqlalchemy alembic psycopg

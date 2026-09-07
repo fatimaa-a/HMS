@@ -1,0 +1,16 @@
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+uv init
+uv venv
+.venv\Scripts\activate
+uv add fastapi uvicorn sqlalchemy alembic psycopg
+uv add python-dotenv
+uv run alembic revision --autogenerate -m "create billing table"
+uv run alembic upgrade head
+uv run alembic current
+uv run alembic check               #[no new upgrade operations detected]
+uv run uvicorn app.main:app --reload
+uv add python-jose
+
+TO CREATE FIRST ADMIN
+$env:PYTHONPATH="."
+uv run python scripts/seed_admin.py
