@@ -15,22 +15,17 @@ from app.routers import (
 
 app = FastAPI()
 
-
 app.add_middleware(
     CORSMiddleware,
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=[
-            "http://localhost:5173",
-            "https://hms-dua14.vercel.app",
-            "https://smarthospital-management.vercel.app",
-        ],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    ),
+    allow_origins=[
+        "http://localhost:5173",
+        "https://hms-dua14.vercel.app",
+        "https://smarthospital-management.vercel.app",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
-
 
 app.mount(
     "/uploads",
