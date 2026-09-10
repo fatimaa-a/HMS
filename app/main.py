@@ -13,13 +13,15 @@ from app.routers import (
     appointment,
 )
 
-
 app = FastAPI()
 
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "https://hms-dua14.vercel.app",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -35,9 +37,7 @@ app.mount(
 
 @app.get("/")
 def root():
-    return {
-        "message": "Hospital Management System"
-    }
+    return {"message": "Hospital Management System"}
 
 
 app.include_router(user.router)
