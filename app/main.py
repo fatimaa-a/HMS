@@ -1,11 +1,44 @@
 from fastapi import FastAPI
-from app.routers import user, department, doctor, patient, medical_record, billing, prescription, appointment
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+
+from app.routers import (
+    user,
+    department,
+    doctor,
+    patient,
+    medical_record,
+    billing,
+    prescription,
+    appointment,
+)
+
 
 app = FastAPI()
 
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+app.mount(
+    "/uploads",
+    StaticFiles(directory="uploads"),
+    name="uploads",
+)
+
+
 @app.get("/")
 def root():
-    return {"message": "Hospital Management System"}
+    return {
+        "message": "Hospital Management System"
+    }
+
 
 app.include_router(user.router)
 app.include_router(department.router)

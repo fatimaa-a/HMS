@@ -15,3 +15,7 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime,default=datetime.utcnow, onupdate=datetime.utcnow)
+    profile_picture: Mapped[str | None] = mapped_column(
+    String(255),
+    nullable=True
+)

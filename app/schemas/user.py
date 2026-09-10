@@ -23,9 +23,10 @@ class UserResponse(BaseModel):
     email: str
     role: str
     is_active: bool
-    created_at: datetime 
-    
-    model_config = ConfigDict(from_attributes=True)    #add ConfigDict and configure the response schema to accept SQLAlchemy objects
+    created_at: datetime
+    profile_picture: str | None = None
+
+    model_config = ConfigDict(from_attributes=True)   #add ConfigDict and configure the response schema to accept SQLAlchemy objects
     
 class TokenResponse(BaseModel):
     access_token: str
@@ -36,3 +37,9 @@ class AdminUserCreate(BaseModel):
     email: str
     password: str
     role: str
+    
+class UserUpdate(BaseModel):
+    username: str | None = None
+    email: str | None = None
+    role: str | None = None
+    is_active: bool | None = None

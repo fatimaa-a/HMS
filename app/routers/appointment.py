@@ -29,13 +29,78 @@ router = APIRouter()
 )
 def view_appointments(
     db: Session = Depends(get_db),
-    _: object = Depends(
-        require_roles("admin", "doctor", "staff")
-    ),
+    current_user: UserModel = Depends(get_current_user),
 ):
-    appointments = db.query(AppointmentModel).all()
+    if current_user.role == "admin" or current_user.role == "staff":
+        appointments = (
+            db.query(AppointmentModel)
+            .all()
+        )
+
+    elif current_user.role == "doctor":
+        db_doctor = (
+            db.query(DoctorModel)
+            .filter(
+                DoctorModel.user_id == current_user.id
+            )
+            .first()
+        )
+
+        if db_doctor is None:
+            raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND,
+                detail="Doctor profile not found."
+            )
+
+        appointments = (
+            db.query(AppointmentModel)
+            .filter(
+                AppointmentModel.doctor_id == db_doctor.id
+            )
+            .all()
+        )
+
+    else:
+        raise HTTPException(
+            status_code=HTTPStatus.FORBIDDEN,
+            detail="You do not have permission to view appointments."
+        )
+
     return appointments
 
+@router.get(
+    "/appointments/me",
+    response_model=list[AppointmentResponse]
+)
+def view_my_appointments(
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user),
+):
+    if current_user.role != "patient":
+        raise HTTPException(
+            status_code=HTTPStatus.FORBIDDEN,
+            detail="Only patients can access this endpoint."
+        )
+
+    db_patient = (
+        db.query(PatientModel)
+        .filter(PatientModel.user_id == current_user.id)
+        .first()
+    )
+
+    if db_patient is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail="Patient profile not found."
+        )
+
+    appointments = (
+        db.query(AppointmentModel)
+        .filter(AppointmentModel.patient_id == db_patient.id)
+        .all()
+    )
+
+    return appointments
 
 @router.get(
     "/appointments/{id}",
@@ -72,9 +137,14 @@ def create_appt(
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user),
 ):
+    if current_user.role not in ["admin", "staff", "patient"]:
+        raise HTTPException(
+            status_code=HTTPStatus.FORBIDDEN,
+            detail="You do not have permission to create appointments."
+        )
+
     # Patient can only create an appointment for themselves
     if current_user.role == "patient":
-
         db_patient = (
             db.query(PatientModel)
             .filter(
@@ -92,7 +162,13 @@ def create_appt(
         patient_id = db_patient.id
 
     else:
-        # Admin / doctor / staff can create for a patient
+        # Admin / staff can create for a patient
+        if appointment.patient_id is None:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail="Patient ID is required."
+            )
+
         patient_id = appointment.patient_id
 
         db_patient = (

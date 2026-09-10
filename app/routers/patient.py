@@ -5,7 +5,7 @@ from app.models.patient import Patient as PatientModel
 from app.schemas.patient import PatientCreate, PatientResponse, PatientUpdate
 from app.models.user import User as UserModel
 
-from app.core.dependencies import get_db, require_roles
+from app.core.dependencies import get_db, require_roles, get_current_user
 
 router = APIRouter()
 
@@ -17,6 +17,25 @@ def get_patients(
 ):
     db_patients = db.query(PatientModel).all()
     return db_patients
+
+@router.get("/patients/me", response_model=PatientResponse)
+def get_my_patient_profile(
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user),
+):
+    db_patient = (
+        db.query(PatientModel)
+        .filter(PatientModel.user_id == current_user.id)
+        .first()
+    )
+
+    if db_patient is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail="Patient profile not found."
+        )
+
+    return db_patient
 
 
 @router.get("/patients/{id}", response_model=PatientResponse)
@@ -102,3 +121,4 @@ def delete_patient(id: int, db: Session = Depends(get_db), _: object = Depends(r
     db.commit()
 
     return "Paitent deleted!"
+

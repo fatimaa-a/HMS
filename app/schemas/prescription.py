@@ -2,9 +2,8 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 
+
 class PrescriptionCreate(BaseModel):
-    patient_id: int
-    doctor_id: int
     medical_record_id: int
     medication: str
     dosage: str

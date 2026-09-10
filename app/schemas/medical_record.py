@@ -4,8 +4,6 @@ from datetime import datetime
 
 
 class MedicalRecordCreate(BaseModel):
-    patient_id: int
-    doctor_id: int
     appointment_id: int
     diagnosis: str
     symptoms: str
