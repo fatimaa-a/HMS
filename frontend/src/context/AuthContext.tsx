@@ -17,11 +17,14 @@ import type { User } from "../types/user";
 interface AuthContextType {
   token: string | null;
   user: User | null;
+  isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -34,10 +37,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const [user, setUser] = useState<User | null>(null);
 
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     async function loadUser() {
       if (!token) {
         setUser(null);
+        setIsLoading(false);
         return;
       }
 
@@ -50,9 +56,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         localStorage.removeItem("token");
         setToken(null);
         setUser(null);
+      } finally {
+        setIsLoading(false);
       }
     }
 
+    setIsLoading(true);
     loadUser();
   }, [token]);
 
@@ -80,6 +89,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       value={{
         token,
         user,
+        isLoading,
         login,
         logout,
       }}
