@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 // Auth
 import Login from "../pages/auth/Login";
@@ -62,18 +63,16 @@ function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-
         {/* Public Routes */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
 
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
-
           {/* Dashboard Layout */}
           <Route element={<DashboardLayout />}>
-
             {/* Profile */}
             <Route
               path="/profile"
@@ -104,16 +103,15 @@ function AppRoutes() {
                 path="/users"
                 element={<Users />}
               />
-
               <Route
                 path="/users/new"
                 element={<UserForm />}
               />
-
               <Route
                 path="/users/:id/edit"
                 element={<UserForm />}
               />
+
               <Route
                 element={
                   <RoleRoute allowedRoles={["admin"]} />
@@ -123,17 +121,14 @@ function AppRoutes() {
                   path="/users"
                   element={<Users />}
                 />
-
                 <Route
                   path="/users/:id"
                   element={<UserDetails />}
                 />
-
                 <Route
                   path="/users/new"
                   element={<UserForm />}
                 />
-
                 <Route
                   path="/users/:id/edit"
                   element={<UserForm />}
@@ -202,7 +197,6 @@ function AppRoutes() {
                 path="/doctors"
                 element={<Doctors />}
               />
-
               <Route
                 path="/doctors/:id"
                 element={<DoctorDetails />}
@@ -219,7 +213,6 @@ function AppRoutes() {
                 path="/doctors/new"
                 element={<DoctorForm />}
               />
-
               <Route
                 path="/doctors/:id/edit"
                 element={<DoctorForm />}
@@ -244,7 +237,6 @@ function AppRoutes() {
                 path="/patients"
                 element={<Patients />}
               />
-
               <Route
                 path="/patients/:id"
                 element={<PatientDetails />}
@@ -266,7 +258,6 @@ function AppRoutes() {
                 path="/patients/new"
                 element={<PatientForm />}
               />
-
               <Route
                 path="/patients/:id/edit"
                 element={<PatientForm />}
@@ -292,7 +283,6 @@ function AppRoutes() {
                 path="/departments"
                 element={<Departments />}
               />
-
               <Route
                 path="/departments/:id"
                 element={<DepartmentDetails />}
@@ -309,7 +299,6 @@ function AppRoutes() {
                 path="/departments/new"
                 element={<DepartmentForm />}
               />
-
               <Route
                 path="/departments/:id/edit"
                 element={<DepartmentForm />}
@@ -334,7 +323,6 @@ function AppRoutes() {
                 path="/medical-records"
                 element={<MedicalRecords />}
               />
-
               <Route
                 path="/medical-records/:id"
                 element={<MedicalRecordDetails />}
@@ -356,7 +344,6 @@ function AppRoutes() {
                 path="/medical-records/new"
                 element={<MedicalRecordForm />}
               />
-
               <Route
                 path="/medical-records/:id/edit"
                 element={<MedicalRecordForm />}
@@ -381,7 +368,6 @@ function AppRoutes() {
                 path="/prescriptions"
                 element={<Prescriptions />}
               />
-
               <Route
                 path="/prescriptions/:id"
                 element={<PrescriptionDetails />}
@@ -403,7 +389,6 @@ function AppRoutes() {
                 path="/prescriptions/new"
                 element={<PrescriptionForm />}
               />
-
               <Route
                 path="/prescriptions/:id/edit"
                 element={<PrescriptionForm />}
@@ -426,17 +411,14 @@ function AppRoutes() {
                 path="/billing"
                 element={<Billing />}
               />
-
               <Route
                 path="/billing/:id"
                 element={<BillDetails />}
               />
-
               <Route
                 path="/billing/new"
                 element={<BillingForm />}
               />
-
               <Route
                 path="/billing/:id/edit"
                 element={<BillingForm />}
@@ -449,15 +431,12 @@ function AppRoutes() {
               path="/appointments"
               element={<Appointments />}
             />
-
             <Route
               path="/appointments/new"
               element={<AppointmentForm />}
             />
-
           </Route>
         </Route>
-
       </Routes>
     </BrowserRouter>
   );
