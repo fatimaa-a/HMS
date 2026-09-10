@@ -11,7 +11,7 @@ import {
 
 import type { User } from "../../types/user";
 
-const API_BASE_URL = "http://127.0.0.1:8000";
+const API_BASE_URL = "https://hms-1-eav6.onrender.com";
 
 function Profile() {
   const { token } = useAuth();
