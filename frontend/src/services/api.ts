@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://127.0.0.1:8000";
+const API_BASE_URL = "https://hms-1-eav6.onrender.com";
 
 export async function apiRequest(
   endpoint: string,
