@@ -21,3 +21,18 @@ export interface UserUpdate {
   role?: string;
   is_active?: boolean;
 }
+
+export interface PendingUser {
+  id: number;
+  username: string;
+  email: string;
+  role: string;
+  is_active: boolean;
+  first_name: string | null;
+  last_name: string | null;
+  phone: string | null;
+  department_id: number | null;
+  specialization: string | null;
+  license_number: string | null;
+  position: string | null;
+}

@@ -1,9 +1,12 @@
 import { apiRequest } from "./api";
+
 import type {
   User,
   UserCreate,
   UserUpdate,
+  PendingUser,
 } from "../types/user";
+
 
 export async function getUsers(
   token: string
@@ -15,6 +18,7 @@ export async function getUsers(
   });
 }
 
+
 export async function getUserById(
   token: string,
   id: number
@@ -25,6 +29,7 @@ export async function getUserById(
     },
   });
 }
+
 
 export async function createUser(
   token: string,
@@ -39,6 +44,7 @@ export async function createUser(
   });
 }
 
+
 export async function updateUser(
   token: string,
   id: number,
@@ -50,5 +56,16 @@ export async function updateUser(
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(user),
+  });
+}
+
+
+export async function getPendingUsers(
+  token: string
+): Promise<PendingUser[]> {
+  return apiRequest("/admin/pending", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 }

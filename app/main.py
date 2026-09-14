@@ -11,9 +11,12 @@ from app.routers import (
     billing,
     prescription,
     appointment,
+    staff,
 )
 
+
 app = FastAPI()
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -26,6 +29,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 app.mount(
     "/uploads",
@@ -47,3 +51,4 @@ app.include_router(medical_record.router)
 app.include_router(prescription.router)
 app.include_router(billing.router)
 app.include_router(appointment.router)
+app.include_router(staff.router)
