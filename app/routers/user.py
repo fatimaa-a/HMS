@@ -93,7 +93,7 @@ def register_patient(
 @router.post("/register/doctor", response_model=UserResponse)
 def register_doctor(
     user: DoctorRegister,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     existing_user = db.query(UserModel).filter(
         (UserModel.email == user.email) |
@@ -103,7 +103,7 @@ def register_doctor(
     if existing_user:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail="Email or username already exists."
+            detail="Email or username already exists.",
         )
 
     password_hash = hash_password(user.password)
@@ -114,22 +114,15 @@ def register_doctor(
         password_hash=password_hash,
         role="doctor",
         is_active=False,
-    )
-
-    db.add(new_user)
-    db.flush()
-
-    new_doctor = DoctorModel(
-        user_id=new_user.id,
-        department_id=user.department_id,
         first_name=user.first_name,
         last_name=user.last_name,
-        specialization=user.specialization,
         phone=user.phone,
+        department_id=user.department_id,
+        specialization=user.specialization,
         license_number=user.license_number,
     )
 
-    db.add(new_doctor)
+    db.add(new_user)
     db.commit()
     db.refresh(new_user)
 
@@ -138,7 +131,7 @@ def register_doctor(
 @router.post("/register/staff", response_model=UserResponse)
 def register_staff(
     user: StaffRegister,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     existing_user = db.query(UserModel).filter(
         (UserModel.email == user.email) |
@@ -148,7 +141,7 @@ def register_staff(
     if existing_user:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail="Email or username already exists."
+            detail="Email or username already exists.",
         )
 
     password_hash = hash_password(user.password)
@@ -159,25 +152,18 @@ def register_staff(
         password_hash=password_hash,
         role="staff",
         is_active=False,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        phone=user.phone,
+        department_id=user.department_id,
+        position=user.position,
     )
 
     db.add(new_user)
-    db.flush()
-
-    new_staff = StaffModel(
-        user_id=new_user.id,
-        department_id=user.department_id,
-        first_name=user.first_name,
-        last_name=user.last_name,
-        position=user.position,
-        phone=user.phone,
-    )
-
-    db.add(new_staff)
     db.commit()
     db.refresh(new_user)
 
-    return new_user             
+    return new_user          
 
 @router.post("/login", response_model=TokenResponse)
 def user_login(
@@ -476,6 +462,7 @@ def update_user(
                 detail="Email already exists.",
             )
 
+    # Update normal user fields
     if user.username is not None:
         db_user.username = user.username
 
@@ -485,7 +472,37 @@ def update_user(
     if user.role is not None:
         db_user.role = user.role
 
-    if user.is_active is not None:
+    # Approve a pending user
+    if user.is_active is True and db_user.is_active is False:
+
+        if db_user.role == "doctor":
+            new_doctor = DoctorModel(
+                user_id=db_user.id,
+                department_id=db_user.department_id,
+                first_name=db_user.first_name,
+                last_name=db_user.last_name,
+                specialization=db_user.specialization,
+                phone=db_user.phone,
+                license_number=db_user.license_number,
+            )
+
+            db.add(new_doctor)
+
+        elif db_user.role == "staff":
+            new_staff = StaffModel(
+                user_id=db_user.id,
+                department_id=db_user.department_id,
+                first_name=db_user.first_name,
+                last_name=db_user.last_name,
+                position=db_user.position,
+                phone=db_user.phone,
+            )
+
+            db.add(new_staff)
+
+        db_user.is_active = True
+
+    elif user.is_active is not None:
         db_user.is_active = user.is_active
 
     db.commit()
