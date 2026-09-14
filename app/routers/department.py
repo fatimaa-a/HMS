@@ -40,7 +40,6 @@ def create_department(
 @router.get("/departments", response_model=list[DepartmentResponse])
 def get_departments(
     db: Session = Depends(get_db),
-    _: object = Depends(require_roles("admin", "doctor", "staff", "patient")),
 ):
     departments = db.query(DepartmentModel).all()
     return departments

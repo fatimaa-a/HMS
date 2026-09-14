@@ -13,13 +13,17 @@ import uuid
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.schemas.user import (
-    UserCreate,
+    PatientRegister,
+    DoctorRegister,
+    StaffRegister,
     UserResponse,
     TokenResponse,
     AdminUserCreate,
     UserUpdate,
 )
+from app.models.doctor import Doctor as DoctorModel
 from app.models.user import User as UserModel
+from app.models.staff import Staff as StaffModel
 from app.models.patient import Patient as PatientModel
 from app.core.dependencies import (
     get_db,
@@ -40,33 +44,20 @@ UPLOAD_DIR = Path("uploads/profile_pictures")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 
-@router.post("/register", response_model=UserResponse)
-def create_user(
-    user: UserCreate,
-    db: Session = Depends(get_db),
+@router.post("/register/patient", response_model=UserResponse)
+def register_patient(
+    user: PatientRegister,
+    db: Session = Depends(get_db)
 ):
-    email = (
-        db.query(UserModel)
-        .filter(UserModel.email == user.email)
-        .first()
-    )
+    existing_user = db.query(UserModel).filter(
+        (UserModel.email == user.email) |
+        (UserModel.username == user.username)
+    ).first()
 
-    if email is not None:
+    if existing_user:
         raise HTTPException(
-            status_code=HTTPStatus.CONFLICT,
-            detail="Email already exists",
-        )
-
-    username = (
-        db.query(UserModel)
-        .filter(UserModel.username == user.username)
-        .first()
-    )
-
-    if username is not None:
-        raise HTTPException(
-            status_code=HTTPStatus.CONFLICT,
-            detail="Username already exists",
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail="Email or username already exists."
         )
 
     password_hash = hash_password(user.password)
@@ -76,6 +67,7 @@ def create_user(
         email=user.email,
         password_hash=password_hash,
         role="patient",
+        is_active=True,
     )
 
     db.add(new_user)
@@ -93,12 +85,99 @@ def create_user(
     )
 
     db.add(new_patient)
-
     db.commit()
     db.refresh(new_user)
 
     return new_user
 
+@router.post("/register/doctor", response_model=UserResponse)
+def register_doctor(
+    user: DoctorRegister,
+    db: Session = Depends(get_db)
+):
+    existing_user = db.query(UserModel).filter(
+        (UserModel.email == user.email) |
+        (UserModel.username == user.username)
+    ).first()
+
+    if existing_user:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail="Email or username already exists."
+        )
+
+    password_hash = hash_password(user.password)
+
+    new_user = UserModel(
+        username=user.username,
+        email=user.email,
+        password_hash=password_hash,
+        role="doctor",
+        is_active=False,
+    )
+
+    db.add(new_user)
+    db.flush()
+
+    new_doctor = DoctorModel(
+        user_id=new_user.id,
+        department_id=user.department_id,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        specialization=user.specialization,
+        phone=user.phone,
+        license_number=user.license_number,
+    )
+
+    db.add(new_doctor)
+    db.commit()
+    db.refresh(new_user)
+
+    return new_user
+
+@router.post("/register/staff", response_model=UserResponse)
+def register_staff(
+    user: StaffRegister,
+    db: Session = Depends(get_db)
+):
+    existing_user = db.query(UserModel).filter(
+        (UserModel.email == user.email) |
+        (UserModel.username == user.username)
+    ).first()
+
+    if existing_user:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail="Email or username already exists."
+        )
+
+    password_hash = hash_password(user.password)
+
+    new_user = UserModel(
+        username=user.username,
+        email=user.email,
+        password_hash=password_hash,
+        role="staff",
+        is_active=False,
+    )
+
+    db.add(new_user)
+    db.flush()
+
+    new_staff = StaffModel(
+        user_id=new_user.id,
+        department_id=user.department_id,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        position=user.position,
+        phone=user.phone,
+    )
+
+    db.add(new_staff)
+    db.commit()
+    db.refresh(new_user)
+
+    return new_user             
 
 @router.post("/login", response_model=TokenResponse)
 def user_login(
@@ -125,6 +204,12 @@ def user_login(
             status_code=HTTPStatus.UNAUTHORIZED,
             detail="Invalid email or password",
         )
+
+    if not db_user.is_active:
+        raise HTTPException(
+        status_code=HTTPStatus.FORBIDDEN,
+        detail="Your account is pending admin approval.",
+    )
 
     created_token = create_access_token(
         {

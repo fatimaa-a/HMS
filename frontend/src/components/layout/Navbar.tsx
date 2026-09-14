@@ -19,15 +19,12 @@ function Navbar({ onMenuClick }: NavbarProps) {
         >
           ☰
         </button>
-
-        <Link to="/" className="navbar-brand">
           <div className="navbar-logo">+</div>
 
           <div className="navbar-brand-text">
             <h2>HMS</h2>
             <span>Hospital Management System</span>
           </div>
-        </Link>
       </div>
 
       <div className="navbar-right">

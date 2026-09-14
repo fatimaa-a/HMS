@@ -5,6 +5,13 @@ class UserCreate(BaseModel):
     username: str
     email: str
     password: str
+    role: str
+
+
+class PatientRegister(BaseModel):
+    username: str
+    email: str
+    password: str
     first_name: str
     last_name: str
     date_of_birth: date
@@ -12,6 +19,29 @@ class UserCreate(BaseModel):
     phone: str
     address: str
     blood_group: str
+
+
+class DoctorRegister(BaseModel):
+    username: str
+    email: str
+    password: str
+    first_name: str
+    last_name: str
+    department_id: int
+    specialization: str
+    phone: str
+    license_number: str
+
+
+class StaffRegister(BaseModel):
+    username: str
+    email: str
+    password: str
+    first_name: str
+    last_name: str
+    department_id: int
+    position: str
+    phone: str
     
 class UserLogin(BaseModel):
     email: str

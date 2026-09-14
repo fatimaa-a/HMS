@@ -1,10 +1,13 @@
 import { apiRequest } from "./api";
 import type { LoginResponse } from "../types/auth";
 
-interface RegisterData {
+interface BaseRegisterData {
   username: string;
   email: string;
   password: string;
+}
+
+interface PatientRegisterData extends BaseRegisterData {
   first_name: string;
   last_name: string;
   date_of_birth: string;
@@ -13,6 +16,28 @@ interface RegisterData {
   address: string;
   blood_group: string;
 }
+
+interface DoctorRegisterData extends BaseRegisterData {
+  first_name: string;
+  last_name: string;
+  department_id: number;
+  specialization: string;
+  phone: string;
+  license_number: string;
+}
+
+interface StaffRegisterData extends BaseRegisterData {
+  first_name: string;
+  last_name: string;
+  department_id: number;
+  position: string;
+  phone: string;
+}
+
+type RegisterData =
+  | { role: "patient"; data: PatientRegisterData }
+  | { role: "doctor"; data: DoctorRegisterData }
+  | { role: "staff"; data: StaffRegisterData };
 
 export async function login(
   email: string,
@@ -33,9 +58,11 @@ export async function login(
 }
 
 export async function register(form: RegisterData) {
-  return apiRequest("/register", {
+  const endpoint = `/register/${form.role}`;
+
+  return apiRequest(endpoint, {
     method: "POST",
-    body: JSON.stringify(form),
+    body: JSON.stringify(form.data),
   });
 }
 
