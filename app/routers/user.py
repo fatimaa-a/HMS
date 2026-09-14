@@ -17,6 +17,7 @@ from app.schemas.user import (
     DoctorRegister,
     StaffRegister,
     UserResponse,
+    PendingUserResponse,
     TokenResponse,
     AdminUserCreate,
     UserUpdate,
@@ -307,6 +308,23 @@ def delete_profile_picture(
     return {
         "message": "Profile picture removed successfully.",
     }
+
+@router.get(
+    "/admin/pending",
+    response_model=list[PendingUserResponse],
+)
+def get_pending_users(
+    db: Session = Depends(get_db),
+    _: object = Depends(require_roles("admin")),
+):
+    return (
+        db.query(UserModel)
+        .filter(
+            UserModel.is_active.is_(False),
+            UserModel.role.in_(["doctor", "staff"]),
+        )
+        .all()
+    )
 
 
 @router.post("/admin/users", response_model=UserResponse)

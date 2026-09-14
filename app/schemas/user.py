@@ -73,3 +73,19 @@ class UserUpdate(BaseModel):
     email: str | None = None
     role: str | None = None
     is_active: bool | None = None
+    
+class PendingUserResponse(BaseModel):
+    id: int
+    username: str
+    email: str
+    role: str
+    is_active: bool
+    first_name: str | None = None
+    last_name: str | None = None
+    phone: str | None = None
+    department_id: int | None = None
+    specialization: str | None = None
+    license_number: str | None = None
+    position: str | None = None
+
+    model_config = ConfigDict(from_attributes=True)
