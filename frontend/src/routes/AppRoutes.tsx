@@ -1,5 +1,9 @@
-
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
 // Auth
 import Login from "../pages/auth/Login";
@@ -25,6 +29,10 @@ import DoctorForm from "../pages/doctors/DoctorForm";
 import Patients from "../pages/patients/Patients";
 import PatientDetails from "../pages/patients/PatientDetails";
 import PatientForm from "../pages/patients/PatientForm";
+
+// Staff
+import Staff from "../pages/staff/Staff";
+import StaffDetails from "../pages/staff/StaffDetails";
 
 // Departments
 import Departments from "../pages/departments/Departments";
@@ -64,16 +72,33 @@ function AppRoutes() {
     <BrowserRouter>
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/unauthorized" element={<Unauthorized />} />
+
+        <Route
+          path="/"
+          element={<Navigate to="/login" replace />}
+        />
+
+        <Route
+          path="/login"
+          element={<Login />}
+        />
+
+        <Route
+          path="/register"
+          element={<Register />}
+        />
+
+        <Route
+          path="/unauthorized"
+          element={<Unauthorized />}
+        />
 
         {/* Protected Routes */}
+
         <Route element={<ProtectedRoute />}>
-          {/* Dashboard Layout */}
           <Route element={<DashboardLayout />}>
             {/* Profile */}
+
             <Route
               path="/profile"
               element={<Profile />}
@@ -81,7 +106,6 @@ function AppRoutes() {
 
             {/* ==================== ADMIN ==================== */}
 
-            {/* Admin Dashboard */}
             <Route
               element={
                 <RoleRoute allowedRoles={["admin"]} />
@@ -93,7 +117,8 @@ function AppRoutes() {
               />
             </Route>
 
-            {/* Users */}
+            {/* ==================== USERS ==================== */}
+
             <Route
               element={
                 <RoleRoute allowedRoles={["admin"]} />
@@ -103,42 +128,25 @@ function AppRoutes() {
                 path="/users"
                 element={<Users />}
               />
+
+              <Route
+                path="/users/:id"
+                element={<UserDetails />}
+              />
+
               <Route
                 path="/users/new"
                 element={<UserForm />}
               />
+
               <Route
                 path="/users/:id/edit"
                 element={<UserForm />}
               />
-
-              <Route
-                element={
-                  <RoleRoute allowedRoles={["admin"]} />
-                }
-              >
-                <Route
-                  path="/users"
-                  element={<Users />}
-                />
-                <Route
-                  path="/users/:id"
-                  element={<UserDetails />}
-                />
-                <Route
-                  path="/users/new"
-                  element={<UserForm />}
-                />
-                <Route
-                  path="/users/:id/edit"
-                  element={<UserForm />}
-                />
-              </Route>
             </Route>
 
-            {/* ==================== DOCTOR ==================== */}
+            {/* ==================== DOCTOR DASHBOARD ==================== */}
 
-            {/* Doctor Dashboard */}
             <Route
               element={
                 <RoleRoute allowedRoles={["doctor"]} />
@@ -150,9 +158,8 @@ function AppRoutes() {
               />
             </Route>
 
-            {/* ==================== STAFF ==================== */}
+            {/* ==================== STAFF DASHBOARD ==================== */}
 
-            {/* Staff Dashboard */}
             <Route
               element={
                 <RoleRoute allowedRoles={["staff"]} />
@@ -164,9 +171,8 @@ function AppRoutes() {
               />
             </Route>
 
-            {/* ==================== PATIENT ==================== */}
+            {/* ==================== PATIENT DASHBOARD ==================== */}
 
-            {/* Patient Dashboard */}
             <Route
               element={
                 <RoleRoute allowedRoles={["patient"]} />
@@ -180,7 +186,6 @@ function AppRoutes() {
 
             {/* ==================== DOCTORS ==================== */}
 
-            {/* Doctors - View */}
             <Route
               element={
                 <RoleRoute
@@ -197,13 +202,13 @@ function AppRoutes() {
                 path="/doctors"
                 element={<Doctors />}
               />
+
               <Route
                 path="/doctors/:id"
                 element={<DoctorDetails />}
               />
             </Route>
 
-            {/* Doctors - Create/Edit */}
             <Route
               element={
                 <RoleRoute allowedRoles={["admin"]} />
@@ -213,6 +218,7 @@ function AppRoutes() {
                 path="/doctors/new"
                 element={<DoctorForm />}
               />
+
               <Route
                 path="/doctors/:id/edit"
                 element={<DoctorForm />}
@@ -221,7 +227,6 @@ function AppRoutes() {
 
             {/* ==================== PATIENTS ==================== */}
 
-            {/* Patients - View */}
             <Route
               element={
                 <RoleRoute
@@ -237,13 +242,13 @@ function AppRoutes() {
                 path="/patients"
                 element={<Patients />}
               />
+
               <Route
                 path="/patients/:id"
                 element={<PatientDetails />}
               />
             </Route>
 
-            {/* Patients - Create/Edit */}
             <Route
               element={
                 <RoleRoute
@@ -258,15 +263,33 @@ function AppRoutes() {
                 path="/patients/new"
                 element={<PatientForm />}
               />
+
               <Route
                 path="/patients/:id/edit"
                 element={<PatientForm />}
               />
             </Route>
 
+            {/* ==================== STAFF ==================== */}
+
+            <Route
+              element={
+                <RoleRoute allowedRoles={["admin"]} />
+              }
+            >
+              <Route
+                path="/staff"
+                element={<Staff />}
+              />
+
+              <Route
+                path="/staff/:id"
+                element={<StaffDetails />}
+              />
+            </Route>
+
             {/* ==================== DEPARTMENTS ==================== */}
 
-            {/* Departments - View */}
             <Route
               element={
                 <RoleRoute
@@ -283,13 +306,13 @@ function AppRoutes() {
                 path="/departments"
                 element={<Departments />}
               />
+
               <Route
                 path="/departments/:id"
                 element={<DepartmentDetails />}
               />
             </Route>
 
-            {/* Departments - Create/Edit */}
             <Route
               element={
                 <RoleRoute allowedRoles={["admin"]} />
@@ -299,6 +322,7 @@ function AppRoutes() {
                 path="/departments/new"
                 element={<DepartmentForm />}
               />
+
               <Route
                 path="/departments/:id/edit"
                 element={<DepartmentForm />}
@@ -307,7 +331,6 @@ function AppRoutes() {
 
             {/* ==================== MEDICAL RECORDS ==================== */}
 
-            {/* Medical Records - View */}
             <Route
               element={
                 <RoleRoute
@@ -323,13 +346,13 @@ function AppRoutes() {
                 path="/medical-records"
                 element={<MedicalRecords />}
               />
+
               <Route
                 path="/medical-records/:id"
                 element={<MedicalRecordDetails />}
               />
             </Route>
 
-            {/* Medical Records - Create/Edit */}
             <Route
               element={
                 <RoleRoute
@@ -344,6 +367,7 @@ function AppRoutes() {
                 path="/medical-records/new"
                 element={<MedicalRecordForm />}
               />
+
               <Route
                 path="/medical-records/:id/edit"
                 element={<MedicalRecordForm />}
@@ -352,7 +376,6 @@ function AppRoutes() {
 
             {/* ==================== PRESCRIPTIONS ==================== */}
 
-            {/* Prescriptions - View */}
             <Route
               element={
                 <RoleRoute
@@ -368,13 +391,13 @@ function AppRoutes() {
                 path="/prescriptions"
                 element={<Prescriptions />}
               />
+
               <Route
                 path="/prescriptions/:id"
                 element={<PrescriptionDetails />}
               />
             </Route>
 
-            {/* Prescriptions - Create/Edit */}
             <Route
               element={
                 <RoleRoute
@@ -389,6 +412,7 @@ function AppRoutes() {
                 path="/prescriptions/new"
                 element={<PrescriptionForm />}
               />
+
               <Route
                 path="/prescriptions/:id/edit"
                 element={<PrescriptionForm />}
@@ -411,14 +435,17 @@ function AppRoutes() {
                 path="/billing"
                 element={<Billing />}
               />
+
               <Route
                 path="/billing/:id"
                 element={<BillDetails />}
               />
+
               <Route
                 path="/billing/new"
                 element={<BillingForm />}
               />
+
               <Route
                 path="/billing/:id/edit"
                 element={<BillingForm />}
@@ -431,6 +458,7 @@ function AppRoutes() {
               path="/appointments"
               element={<Appointments />}
             />
+
             <Route
               path="/appointments/new"
               element={<AppointmentForm />}

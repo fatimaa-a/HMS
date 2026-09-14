@@ -98,6 +98,18 @@ function Sidebar({ isOpen }: SidebarProps) {
             <span>Patients</span>
           </NavLink>
         )}
+
+        {user.role === "admin" && (
+          <NavLink
+            to="/staff"
+            className={({ isActive }) =>
+              isActive ? "sidebar-link active" : "sidebar-link"
+            }
+          >
+            <span className="sidebar-icon">♟</span>
+            <span>Staff</span>
+          </NavLink>
+        )}
       </div>
 
       {(user.role === "admin" || user.role === "staff") && (
