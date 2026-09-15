@@ -36,6 +36,7 @@ function Register() {
 
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
@@ -59,6 +60,8 @@ function Register() {
       ...form,
       [event.target.name]: event.target.value,
     });
+
+    setError("");
   }
 
   function handleRoleChange(event: React.ChangeEvent<HTMLSelectElement>) {
@@ -71,11 +74,15 @@ function Register() {
       license_number: "",
       position: "",
     });
+
+    setError("");
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
     setIsLoading(true);
+    setError("");
 
     try {
       const baseData = {
@@ -126,6 +133,12 @@ function Register() {
       }, 1500);
     } catch (error) {
       console.error(error);
+
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Registration failed. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -192,6 +205,13 @@ function Register() {
                     : "Your account is pending admin approval."}
                 </p>
               </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="register-error">
+              <strong>Registration failed</strong>
+              <p>{error}</p>
             </div>
           )}
 
