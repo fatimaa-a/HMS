@@ -3,20 +3,25 @@ import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthContext";
+
 import { createAppointment } from "../../services/appointmentService";
 import { getDepartments } from "../../services/departmentService";
 import { getDoctors } from "../../services/doctorService";
+import { getPatients } from "../../services/patientService";
 
 import type { Department } from "../../types/department";
 import type { Doctor } from "../../types/doctor";
+import type { Patient } from "../../types/patient";
 
 function AppointmentForm() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const navigate = useNavigate();
 
   const [departments, setDepartments] = useState<Department[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
 
+  const [patientId, setPatientId] = useState("");
   const [departmentId, setDepartmentId] = useState("");
   const [doctorId, setDoctorId] = useState("");
   const [appointmentDate, setAppointmentDate] = useState("");
@@ -26,6 +31,8 @@ function AppointmentForm() {
   const [booking, setBooking] = useState(false);
   const [error, setError] = useState("");
 
+  const isAdmin = user?.role === "admin";
+
   useEffect(() => {
     async function loadData() {
       if (!token) {
@@ -34,23 +41,34 @@ function AppointmentForm() {
       }
 
       try {
-        const [departmentData, doctorData] =
-          await Promise.all([
-            getDepartments(token),
-            getDoctors(token),
-          ]);
+        if (isAdmin) {
+          const [departmentData, doctorData, patientData] =
+            await Promise.all([
+              getDepartments(token),
+              getDoctors(token),
+              getPatients(token),
+            ]);
 
-        setDepartments(departmentData);
-        setDoctors(doctorData);
+          setDepartments(departmentData);
+          setDoctors(doctorData);
+          setPatients(patientData);
+        } else {
+          const [departmentData, doctorData] =
+            await Promise.all([
+              getDepartments(token),
+              getDoctors(token),
+            ]);
+
+          setDepartments(departmentData);
+          setDoctors(doctorData);
+        }
       } catch (error) {
         console.error(error);
 
         if (error instanceof Error) {
           setError(error.message);
         } else {
-          setError(
-            "Failed to load departments and doctors."
-          );
+          setError("Failed to load appointment data.");
         }
       } finally {
         setLoading(false);
@@ -58,7 +76,7 @@ function AppointmentForm() {
     }
 
     loadData();
-  }, [token]);
+  }, [token, isAdmin]);
 
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>
@@ -71,9 +89,12 @@ function AppointmentForm() {
     }
 
     if (!departmentId || !doctorId) {
-      setError(
-        "Please select a department and doctor."
-      );
+      setError("Please select a department and doctor.");
+      return;
+    }
+
+    if (isAdmin && !patientId) {
+      setError("Please select a patient.");
       return;
     }
 
@@ -82,6 +103,9 @@ function AppointmentForm() {
 
     try {
       await createAppointment(token, {
+        ...(isAdmin
+          ? { patient_id: Number(patientId) }
+          : {}),
         doctor_id: Number(doctorId),
         department_id: Number(departmentId),
         appointment_date: appointmentDate,
@@ -120,12 +144,14 @@ function AppointmentForm() {
 
   return (
     <div className="form-page">
-
       <div className="form-page-header">
         <div>
           <h1>Book Appointment</h1>
+
           <p>
-            Schedule a new appointment for a patient.
+            {isAdmin
+              ? "Schedule a new appointment for a patient."
+              : "Schedule your appointment with a doctor."}
           </p>
         </div>
       </div>
@@ -137,15 +163,44 @@ function AppointmentForm() {
       )}
 
       <div className="form-card">
-
         <form onSubmit={handleSubmit}>
-
           <div className="form-section">
             <div className="form-section-title">
               Appointment Details
             </div>
 
             <div className="form-grid">
+              {isAdmin && (
+                <div className="form-group">
+                  <label htmlFor="patient">
+                    Patient
+                  </label>
+
+                  <select
+                    id="patient"
+                    value={patientId}
+                    onChange={(event) =>
+                      setPatientId(event.target.value)
+                    }
+                    required
+                  >
+                    <option value="">
+                      Select a patient
+                    </option>
+
+                    {patients.map((patient) => (
+                      <option
+                        key={patient.id}
+                        value={patient.id}
+                      >
+                        {patient.first_name}{" "}
+                        {patient.last_name} — Patient #
+                        {patient.id}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className="form-group">
                 <label htmlFor="department">
@@ -156,9 +211,7 @@ function AppointmentForm() {
                   id="department"
                   value={departmentId}
                   onChange={(event) => {
-                    setDepartmentId(
-                      event.target.value
-                    );
+                    setDepartmentId(event.target.value);
                     setDoctorId("");
                   }}
                   required
@@ -223,9 +276,7 @@ function AppointmentForm() {
                   type="datetime-local"
                   value={appointmentDate}
                   onChange={(event) =>
-                    setAppointmentDate(
-                      event.target.value
-                    )
+                    setAppointmentDate(event.target.value)
                   }
                   required
                 />
@@ -247,18 +298,14 @@ function AppointmentForm() {
                   required
                 />
               </div>
-
             </div>
           </div>
 
           <div className="form-actions">
-
             <button
               type="button"
               className="secondary-button"
-              onClick={() =>
-                navigate("/appointments")
-              }
+              onClick={() => navigate("/appointments")}
               disabled={booking}
             >
               Cancel
@@ -273,11 +320,8 @@ function AppointmentForm() {
                 ? "Booking..."
                 : "Book Appointment"}
             </button>
-
           </div>
-
         </form>
-
       </div>
     </div>
   );
